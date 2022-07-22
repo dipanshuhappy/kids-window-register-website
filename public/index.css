@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root{
+    --colorAccent:#b50921;
+    --colorPrimary:#C3C3C3;
+}
+.homePage{
+    width:100vw;
+    height:100vh;
+}
+.colorPrimary{
+    background-color:var(--colorPrimary);
+}
+.innerColorAccent{
+    color: var(--colorAccent);
+}
+.colorAccent{
+    background-color:var(--colorAccent);
+}
+.centerHorizontal{
+    margin:0 auto;
+    background-position: center;
+    text-align: center;
+}
+.studentsPage{
+    width:100%;
+    height:100vh;
+}
+.w-50{
+    width: 50%;
+}
+.margin-top{
+    margin-top: 50px;
+}
+.margin-bottom{
+    margin-bottom: 20px;
+}
+/* .logo{
+    background-image: url("./dist/assets/ic_launcher.png");
+    width: auto;
+    height: auto;
+    
+} */
