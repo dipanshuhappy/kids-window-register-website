@@ -7,15 +7,10 @@ import {
   collection,
   getDoc,
   updateDoc,
-  query,
-  where,
-  Firestore,
   setDoc,
   runTransaction,
-  Transaction,
   getDocs,
   writeBatch,
-  FieldValue,
   deleteField,
   deleteDoc,
 } from "firebase/firestore";
@@ -28,12 +23,6 @@ const AdminPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nextTermToBe, setNextTermToBe] = useState("");
-  const db = getFirestore();
-  const adminDoc = doc(
-    db,
-    Constants.ADMIN_COLLECTION_PATH,
-    Constants.TERM_INFO_DOCUMENT_NAME
-  );
   const studentDocs = collection(db, Constants.CLASSES_COLLECTION_PATH);
   const getNextTerm = () => {
     console.log("Store +>", Store.term);
