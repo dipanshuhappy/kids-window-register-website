@@ -1,7 +1,7 @@
 import { getAuth } from "firebase/auth";
-import { initializeApp } from "firebase/app";
+import { initializeApp} from "firebase/app";
 import Constants from "./Constants";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore,collection,doc } from "firebase/firestore";
 const config = {
   apiKey: import.meta.env.SNOWPACK_PUBLIC_FIREBASE_API_KEY,
   authDomain: import.meta.env.SNOWPACK_PUBLIC_FIREBASE_AUTH_DOMAIN,
