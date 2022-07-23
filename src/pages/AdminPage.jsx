@@ -1,7 +1,24 @@
 import React, { useEffect, useState } from "react";
 import AccentButton from "./../components/AccentButton";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, doc,collection, getDoc, updateDoc, query, where, Firestore, setDoc, runTransaction, Transaction, getDocs, writeBatch, FieldValue, deleteField, deleteDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  collection,
+  getDoc,
+  updateDoc,
+  query,
+  where,
+  Firestore,
+  setDoc,
+  runTransaction,
+  Transaction,
+  getDocs,
+  writeBatch,
+  FieldValue,
+  deleteField,
+  deleteDoc,
+} from "firebase/firestore";
 import Constants from "../Constants";
 import Store from "../Store";
 import { auth } from "../Firebase";
@@ -17,8 +34,7 @@ const AdminPage = () => {
     Constants.ADMIN_COLLECTION_PATH,
     Constants.TERM_INFO_DOCUMENT_NAME
   );
-  const batch =writeBatch(db)
-  const studentDocs=collection(db,Constants.CLASSES_COLLECTION_PATH);
+  const studentDocs = collection(db, Constants.CLASSES_COLLECTION_PATH);
   const getNextTerm = () => {
     console.log("Store +>", Store.term);
     const index_of_current_term = Constants.TERMS.indexOf(Store.term);
@@ -48,110 +64,85 @@ const AdminPage = () => {
     Store.term = adminSnapShot.data().term;
   }
   const onChangeTermClick = async () => {
-    const newAdminDoc=doc(
+    const newAdminDoc = doc(
       db,
       Constants.ADMIN_COLLECTION_PATH,
       Constants.TERM_INFO_DOCUMENT_NAME
     );
     const data = { term: nextTermToBe };
-    console.log("user::>",admin)
-    const q = query(collection(db,Constants.ADMIN_COLLECTION_PATH),where("term","==",Store.term))
-    setDoc(
-      adminDoc,data,{merge:true}
-    );
+    console.log("user::>", admin);
+    setDoc(adminDoc, data, { merge: true });
   };
   const onChangeAcademicTermClick = async () => {
-      if(Store.term.startsWith("first")||Store.term.startsWith("second")){
-        alert("You need to be in Thrid term to start")
-      }
-      else{
-        const datesDoc=collection(db,Store.term);
-        await runTransaction(db,async (transaction)=>{
-          transaction.update(adminDoc,{term:"first_term"});
-          getDocs(datesDoc).then(
-            snapshot=>{
-              snapshot.forEach(dateDoc=>{
-                batch.delete(
-                  doc(
-                    db,
-                    dateDoc.ref
-                  )
-                )
-              })
-            }
-          )
-        }).then(
-          ()=>{
-            deleteOtherTerms()
-          }
-        ).then(
-          ()=>{
-            deleteStudentSubCollection()
-          }
-        )
-      }
-  };
-  const deleteStudentSubCollection =async ()=>{
-    getDocs(studentDocs).then(
-      documents=>{
-        documents.forEach(
-          studentDoc=>{
-            const emptyStudentArray={}
-            emptyArray[Constants.STUDENT_NAMES_ARRAY_FIELD_NAME]=deleteField()
-            updateDoc(
-              studentDoc.ref,
-              emptyStudentArray
-            ) 
-            getDocs(
-              db,
-              Constants.CLASSES_COLLECTION_PATH,
-              studentDoc.id,
-              Constants.STUDENTS_COLLECTION_PATH
-            ).then(
-              snapshots=>{
-                snapshots.forEach(snapshot=>{
-                  deleteDoc(snapshot.ref)
-                })
-              }
-            )
-
-          }
-        )
-      }
-    )
-  }
-  const deleteOtherTerms=()=>{
-    firstTermDates=collection(db,Constants.TERMS[0]);
-    secondTermDates=collection(db,Constants.TERMS[1]);
-    getDocs(firstTermDates).then(dateDocuments=>{
-      dateDocuments.forEach(dateDocument=>{
-        if(dateDocument.exists()){
-          batch.delete(
-            dateDocument.ref
-          )
-        }
+    if (Store.term.startsWith("first") || Store.term.startsWith("second")) {
+      alert("You need to be in Thrid term to start");
+    } else {
+      const batch1 = writeBatch(db);
+      const datesDoc = collection(db, Store.term);
+      await runTransaction(db, async (transaction) => {
+        transaction.update(adminDoc, { term: "first_term" });
+        const datesSnapshots = await getDocs(datesDoc);
+        datesSnapshots.forEach((dateDoc) => {
+          console.log("INside deleteing date doc", dateDoc.id);
+          batch1.delete(dateDoc.ref);
+        });
       })
-    }).then(()=>{
-      getDocs(secondTermDates).then(dateDocuments=>{
-        dateDocuments.forEach(dateDocument=>{
-          if(dateDocument.exists()){
-            batch.delete(
-              dateDocument.ref
-            )
-          }
+        .then(() => {
+          batch1.commit();
+          deleteOtherTerms();
         })
-      }
-      )
-    })
-  }
+        .then(() => {
+          batch.commit();
+          // deleteStudentSubCollection()
+        });
+    }
+  };
+  const deleteStudentSubCollection = async () => {
+    getDocs(studentDocs).then((documents) => {
+      documents.forEach((studentDoc) => {
+        const emptyStudentArray = {};
+        emptyArray[Constants.STUDENT_NAMES_ARRAY_FIELD_NAME] = deleteField();
+        updateDoc(studentDoc.ref, emptyStudentArray);
+        getDocs(
+          db,
+          Constants.CLASSES_COLLECTION_PATH,
+          studentDoc.id,
+          Constants.STUDENTS_COLLECTION_PATH
+        ).then((snapshots) => {
+          snapshots.forEach((snapshot) => {
+            deleteDoc(snapshot.ref);
+          });
+        });
+      });
+    });
+  };
+  const deleteOtherTerms = async () => {
+    const batch2=writeBatch(db);
+    const batch3=writeBatch(db);
+    const firstTermDates = collection(db, Constants.TERMS[0]);
+    const secondTermDates = collection(db, Constants.TERMS[1]);
+    getDocs(firstTermDates)
+      .then((dateDocuments) => {
+        dateDocuments.forEach((dateDocument) => {
+          if (dateDocument.exists()) {
+            batch2.delete(dateDocument.ref);
+          }
+        });
+      })
+      .then(async () => {
+        await batch2.commit()
+        getDocs(secondTermDates).then((dateDocuments) => {
+          dateDocuments.forEach((dateDocument) => {
+            if (dateDocument.exists()) {
+              batch3.delete(dateDocument.ref);
+            }
+          });
+        });
+      });
+  };
   const onChangeClassCodeClickClick = () => {
     console.log("onChangeClassCodeClickClick clicked");
   };
-  useEffect(() => {
-    return async () => {
-      await getAuth().signOut();
-    };
-  });
   return (
     <div className="h-screen w-full">
       <div className="w-full colorAccent">
