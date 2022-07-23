@@ -16,14 +16,13 @@ import {
 } from "firebase/firestore";
 import Constants from "../Constants";
 import Store from "../Store";
-import { auth } from "../Firebase";
+import { auth ,adminDoc,classesCollection} from "../Firebase";
 
 const AdminPage = () => {
   const [admin, setAdmin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nextTermToBe, setNextTermToBe] = useState("");
-  const studentDocs = collection(db, Constants.CLASSES_COLLECTION_PATH);
   const getNextTerm = () => {
     console.log("Store +>", Store.term);
     const index_of_current_term = Constants.TERMS.indexOf(Store.term);
@@ -86,7 +85,7 @@ const AdminPage = () => {
     }
   };
   const deleteStudentSubCollection = () => {
-    getDocs(studentDocs).then((documents) => {
+    getDocs(classesCollection).then((documents) => {
       documents.forEach(async (studentDoc) => {
         const emptyStudentArray = {};
         emptyStudentArray[Constants.STUDENT_NAMES_ARRAY_FIELD_NAME] =

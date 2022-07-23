@@ -17,3 +17,4 @@ export const adminDoc = doc(
   Constants.ADMIN_COLLECTION_PATH,
   Constants.TERM_INFO_DOCUMENT_NAME
 );
+export const classesCollection= collection(db, Constants.CLASSES_COLLECTION_PATH);
