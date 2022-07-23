@@ -17,6 +17,7 @@ import {
 import Constants from "../Constants";
 import Store from "../Store";
 import { auth, adminDoc, classesCollection,getTermCollection} from "../Firebase";
+import { async } from "@firebase/util";
 
 const AdminPage = () => {
   const [admin, setAdmin] = useState("");
@@ -61,23 +62,21 @@ const AdminPage = () => {
     }
   };
   const changeAcademicYear = async ()=>{
-    const batch1 = writeBatch(db);
-    const datesDoc = getTermCollection(Store.term);
-    await runTransaction(db, async (transaction) => {
-      transaction.update(adminDoc, { term: "first_term" });
-      const datesSnapshots = await getDocs(datesDoc);
-      datesSnapshots.forEach((dateDoc) => {
-        console.log("INside deleteing date doc", dateDoc.id);
-        batch1.delete(dateDoc.ref);
-      });
-    })
-      .then(() => {
-        batch1.commit();
-        deleteOtherTerms();
-      })
-      .then(() => {
-        deleteStudentSubCollection();
-      });
+    await updateDoc(adminDoc,{term:"first_term"})
+    Constants.TERMS.forEach(async (term)=>{await deleteTerm(getTermCollection(term))})
+    deleteStudentSubCollection();
+  }
+  const deleteTerm=async (termCollection)=>{
+    const termBatch=writeBatch(db);
+    const termDateSnapshots = await getDocs(termCollection);
+    termDateSnapshots.forEach(
+      termDateDoc=>{
+        if(termDateDoc.exists()){
+          termBatch.delete(termDateDoc.ref)
+        }
+      }
+    )
+    await termBatch.commit()
   }
   const deleteStudentSubCollection = () => {
     getDocs(classesCollection).then((documents) => {
