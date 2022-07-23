@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore";
 import Constants from "../Constants";
 import Store from "../Store";
-import { auth ,adminDoc,classesCollection} from "../Firebase";
+import { auth, adminDoc, classesCollection,getTermCollection} from "../Firebase";
 
 const AdminPage = () => {
   const [admin, setAdmin] = useState("");
@@ -33,17 +33,16 @@ const AdminPage = () => {
   };
   const onSignInClick = async () => {
     let user;
-    try{
-     const userCreds  = await signInWithEmailAndPassword(auth,email,password);
-     user=userCreds.user;
-    }
-    catch (error) {
+    try {
+      const userCreds = await signInWithEmailAndPassword(auth, email, password);
+      user = userCreds.user;
+    } catch (error) {
       const errorCode = error.code;
       alert("Can't sign in , errorCode ", errorCode);
     }
-    await setTerm()
-    setNextTermToBe(getNextTerm())
-    setAdmin(user.uid)
+    await setTerm();
+    setNextTermToBe(getNextTerm());
+    setAdmin(user.uid);
   };
   async function setTerm() {
     const adminSnapShot = await getDoc(adminDoc);
@@ -55,28 +54,31 @@ const AdminPage = () => {
     await setDoc(adminDoc, data, { merge: true });
   };
   const onChangeAcademicTermClick = async () => {
-    if (Store.term.startsWith("first") || Store.term.startsWith("second")) {
+    if (!Store.term.startsWith(Constants.TERMS[Constants.TERMS.length - 1])) {
       alert("You need to be in Thrid term to start");
     } else {
-      const batch1 = writeBatch(db);
-      const datesDoc = collection(db, Store.term);
-      await runTransaction(db, async (transaction) => {
-        transaction.update(adminDoc, { term: "first_term" });
-        const datesSnapshots = await getDocs(datesDoc);
-        datesSnapshots.forEach((dateDoc) => {
-          console.log("INside deleteing date doc", dateDoc.id);
-          batch1.delete(dateDoc.ref);
-        });
-      })
-        .then(() => {
-          batch1.commit();
-          deleteOtherTerms();
-        })
-        .then(() => {
-          deleteStudentSubCollection();
-        });
+     await changeAcademicYear()
     }
   };
+  const changeAcademicYear = async ()=>{
+    const batch1 = writeBatch(db);
+    const datesDoc = getTermCollection(Store.term);
+    await runTransaction(db, async (transaction) => {
+      transaction.update(adminDoc, { term: "first_term" });
+      const datesSnapshots = await getDocs(datesDoc);
+      datesSnapshots.forEach((dateDoc) => {
+        console.log("INside deleteing date doc", dateDoc.id);
+        batch1.delete(dateDoc.ref);
+      });
+    })
+      .then(() => {
+        batch1.commit();
+        deleteOtherTerms();
+      })
+      .then(() => {
+        deleteStudentSubCollection();
+      });
+  }
   const deleteStudentSubCollection = () => {
     getDocs(classesCollection).then((documents) => {
       documents.forEach(async (studentDoc) => {

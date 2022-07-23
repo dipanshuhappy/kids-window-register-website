@@ -22,3 +22,4 @@ export const classesCollection = collection(
   db,
   Constants.CLASSES_COLLECTION_PATH
 );
+export const getTermCollection=(term)=>collection(db,term)
