@@ -31,12 +31,21 @@ const StudentsPages = ({ history }) => {
   const classDocRef = doc(db, Constants.CLASSES_COLLECTION_PATH, Store.classId);
   const getStudentNames = async () => {
     const snapShot = await getDoc(classDocRef);
+    if(snapShot.exists()){
     const classNames = snapShot.data().names;
+    console.log(classNames);
+    console.log("this is running student name")
     changeStudentNames(classNames);
+    }
+    else{
+      console.log("Does not exist students")
+    }
   };
-  useEffect(() => {
-    getStudentNames();
-  }, []);
+  useEffect(async () => {
+    (async () => {
+      await getStudentNames();
+    })();
+  });
   useEffect(() => {
     redirectToAddStudents();
   }, [studentNames]);
@@ -47,7 +56,7 @@ const StudentsPages = ({ history }) => {
     }
   }, [showActionModal]);
   const redirectToAddStudents = () => {
-    if (studentNames === undefined) {
+    if (studentNames) {
       console.log("lkdjfslj");
       history.push("/add_student");
     }
