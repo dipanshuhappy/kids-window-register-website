@@ -23,15 +23,17 @@ import {
   getTermCollection,
   getStudentsSubCollection,
   db,
+  classCodesDoc,
 } from "../Firebase";
 import InputField from "../components/InputField";
 import ChangePassCodeModal from "../components/ChangePassCodeModal";
 
 const AdminPage = () => {
-  const [admin, setAdmin] = useState("sdfsdf");
+  const [admin, setAdmin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nextTermToBe, setNextTermToBe] = useState("");
+  const [classList,setClassList]=useState([]);
   const [showChangePassCodeModal,setChangePassCodeShowModal]=useState(false);
   const getNextTerm = () => {
     console.log("Store +>", Store.term);
@@ -51,12 +53,19 @@ const AdminPage = () => {
       alert("Can't sign in , errorCode ", errorCode);
     }
     await setTerm();
+    await setClassListFromDatabase();
     setNextTermToBe(getNextTerm());
     setAdmin(user.uid);
   };
   async function setTerm() {
     const adminSnapShot = await getDoc(adminDoc);
     Store.term = adminSnapShot.data().term;
+  }
+  const setClassListFromDatabase=async ()=>{
+    const newClassList= await (await getDoc(classCodesDoc)).data()[Constants.CLASS_LIST_FIELD_NAME]
+    setClassList(
+     newClassList
+    )
   }
   const onChangeTermClick = async () => {
     const data = { term: nextTermToBe };
@@ -102,9 +111,12 @@ const AdminPage = () => {
       });
     });
   };
-  const onChangeClassCodeClickClick = () => {
+  const onChangeClassCodeClick = () => {
     setChangePassCodeShowModal(true)
   };
+  const onAddClassClick = ()=>{
+
+  }
   return (
     <div className="h-screen w-full">
       <div className="w-full colorAccent">
@@ -157,9 +169,14 @@ const AdminPage = () => {
           <AccentButton
             style={{ marginTop: "16px" }}
             name="Change class code"
-            onClick={onChangeClassCodeClickClick}
+            onClick={onChangeClassCodeClick}
           />
-          <ChangePassCodeModal setShowModal={setChangePassCodeShowModal} showModal={showChangePassCodeModal} />
+          <AccentButton
+            style={{ marginTop: "16px" }}
+            name="Add Class"
+            onClick={onAddClassClick}
+          />
+          <ChangePassCodeModal classList={classList} setShowModal={setChangePassCodeShowModal} showModal={showChangePassCodeModal} />
         </>
       )}
     </div>

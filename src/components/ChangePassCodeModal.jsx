@@ -3,20 +3,43 @@ import DropDown from "./DropDown";
 import PassCodeInput from "./PassCodeInput";
 import ShowPasswordIcon from "./ShowPassWordIcon";
 import Modal from "./Modal";
-function ChangePassCodeModal({showModal,setShowModal}) {
+import { deleteField, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { classCodesDoc, validateLogin } from "../Firebase";
+import { async } from "@firebase/util";
+function ChangePassCodeModal({showModal,setShowModal,classList}) {
   const [className, setClassName] = React.useState("No Class Selected");
-  const [password, setPassword] = React.useState("");
+  const [oldPassword, setPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
   const onDropItemClick = (value) => setClassName(value);
   const onPassCodeValueChange = (value) => setPassword(value);
   const onPassNewCodeValueChange = (value)=> setNewPassword(value);
-
+  const onSubmit =async ()=>{
+    const classCodeDoc = await getDoc(classCodesDoc);
+    if(validateLogin(classCodeDoc,oldPassword) && newPassword.length!=0 && classCodeDoc.data()[oldPassword]==className){
+     await updateDoc(
+        classCodesDoc,{
+          [oldPassword]:deleteField()
+        }
+      );
+      const newPasswordData={};
+      newPasswordData[newPassword]=className;
+      await setDoc(
+        classCodesDoc,
+        newPasswordData,{merge:true}
+      )
+      setShowModal(false)
+    }
+    else{
+      alert("Wrong passcode")
+    }
+  }
   return (
     <>
       <Modal
         setShowModal={setShowModal}
         title={"Enter Class Code"}
         showModal={showModal}
+        onEnter={onSubmit}
       >
         <div className="flex gap-5 flex-col">
           <div className="grid place-items-center">
@@ -25,14 +48,14 @@ function ChangePassCodeModal({showModal,setShowModal}) {
               {className}
             </kbd>
             <DropDown
-              list={["JSS1A", "JDLsf", "JSS1A", "JSS1A", "JSS1A"]}
+              list={classList}
               title="Select Class"
               onItemCLick={onDropItemClick}
             />
           </div>
           <p>Enter Current Password</p>
           <PassCodeInput
-            value={password}
+            value={oldPassword}
             maxLength={5}
             valueChangedHandler={onPassCodeValueChange}
             icon={ShowPasswordIcon}

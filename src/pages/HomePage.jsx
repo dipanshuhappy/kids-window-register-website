@@ -4,6 +4,7 @@ import LoginModal from "../components/LoginModal";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import Constants from "../Constants";
 import Store from "../Store";
+import { adminDoc, classCodesDoc ,validateLogin} from "../Firebase";
 
 const HomePage = ({ toggleLoggedInBar ,history}) => {
   const [passCode, changePassCode] = React.useState("");
@@ -13,11 +14,8 @@ const HomePage = ({ toggleLoggedInBar ,history}) => {
     history.push("/")
   },[])
   const handleOnSubmitPassCode = async () => {
-    const classCodeDoc = await getDoc(getClassCodeRef());
-    console.log("passCode :>> ", passCode);
-    console.log("classCodeDoc :>> ", classCodeDoc);
-    console.log("classCodeDoc.data :>> ", classCodeDoc.data());
-    if (validateLogin(classCodeDoc)) {
+    const classCodeDoc = await getDoc(classCodesDoc);
+    if (validateLogin(classCodeDoc,passCode)) {
       const newClassId = classCodeDoc.data()[passCode];
       setClassId(newClassId);
       console.log("passcode class id", classCodeDoc.data()[passCode]);
@@ -34,11 +32,6 @@ const HomePage = ({ toggleLoggedInBar ,history}) => {
     }
   };
   async function setTerm() {
-    const adminDoc = doc(
-      db,
-      Constants.ADMIN_COLLECTION_PATH,
-      Constants.TERM_INFO_DOCUMENT_NAME
-    );
     const adminSnapShot = await getDoc(adminDoc);
     Store.term = adminSnapShot.data().term;
   }
@@ -49,17 +42,6 @@ const HomePage = ({ toggleLoggedInBar ,history}) => {
       Constants.CLASS_CODE_DOCUMENT_NAME
     );
     return docRef;
-  }
-  function validateLogin(snapShot) {
-    if (snapShot.exists) {
-      if (snapShot.data()[passCode]) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
   }
   return (
     <div className="homePage colorPrimary">

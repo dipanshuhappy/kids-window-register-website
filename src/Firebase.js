@@ -22,5 +22,21 @@ export const classesCollection = collection(
   db,
   Constants.CLASSES_COLLECTION_PATH
 );
+export const classCodesDoc=doc(
+  db,
+  Constants.PASSCODE_COLLECTION_PATH,
+  Constants.CLASS_CODE_DOCUMENT_NAME
+)
+export function validateLogin(snapShot,passCode) {
+  if (snapShot.exists) {
+    if (snapShot.data()[passCode]) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
 export const getTermCollection=(term)=>collection(db,term)
 export const getStudentsSubCollection=(classId)=>collection(db,Constants.CLASSES_COLLECTION_PATH,classId,Constants.STUDENTS_COLLECTION_PATH)
