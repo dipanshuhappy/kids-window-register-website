@@ -5,7 +5,6 @@ import ShowPasswordIcon from "./ShowPassWordIcon";
 import Modal from "./Modal";
 import { deleteField, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { classCodesDoc, validateLogin } from "../Firebase";
-import { async } from "@firebase/util";
 function ChangePassCodeModal({showModal,setShowModal,classList}) {
   const [className, setClassName] = React.useState("No Class Selected");
   const [oldPassword, setPassword] = React.useState("");
@@ -70,7 +69,6 @@ function ChangePassCodeModal({showModal,setShowModal,classList}) {
             iconAsButton
           />
         </div>
-        <show></show>
       </Modal>
     </>
   );

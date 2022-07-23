@@ -27,7 +27,7 @@ import {
 } from "../Firebase";
 import InputField from "../components/InputField";
 import ChangePassCodeModal from "../components/ChangePassCodeModal";
-
+import AddClassModal  from "../components/AddClassModal";
 const AdminPage = () => {
   const [admin, setAdmin] = useState("");
   const [email, setEmail] = useState("");
@@ -35,6 +35,7 @@ const AdminPage = () => {
   const [nextTermToBe, setNextTermToBe] = useState("");
   const [classList,setClassList]=useState([]);
   const [showChangePassCodeModal,setChangePassCodeShowModal]=useState(false);
+  const [showAddClassModal,setAddClassShowModal]=useState(false);
   const getNextTerm = () => {
     console.log("Store +>", Store.term);
     const index_of_current_term = Constants.TERMS.indexOf(Store.term);
@@ -115,7 +116,7 @@ const AdminPage = () => {
     setChangePassCodeShowModal(true)
   };
   const onAddClassClick = ()=>{
-
+    setAddClassShowModal(true);
   }
   return (
     <div className="h-screen w-full">
@@ -177,6 +178,7 @@ const AdminPage = () => {
             onClick={onAddClassClick}
           />
           <ChangePassCodeModal classList={classList} setShowModal={setChangePassCodeShowModal} showModal={showChangePassCodeModal} />
+          <AddClassModal setShowModal={setAddClassShowModal} showModal={showAddClassModal} />
         </>
       )}
     </div>
