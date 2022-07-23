@@ -22,6 +22,7 @@ import {
   classesCollection,
   getTermCollection,
   getStudentsSubCollection,
+  db
 } from "../Firebase";
 import { async } from "@firebase/util";
 
@@ -87,42 +88,14 @@ const AdminPage = () => {
   const deleteStudentSubCollection = async () => {
     const classesDocSnapshots=await getDocs(classesCollection);
     classesDocSnapshots.forEach(
-      classDoc=>{
+     async (classDoc)=>{
         const emptyStudentArray = {};
         emptyStudentArray[Constants.STUDENT_NAMES_ARRAY_FIELD_NAME]=deleteField();
-        await updateDoc(classDoc,emptyStudentArray);
+        await updateDoc(classDoc.ref,emptyStudentArray);
         const studentSubCollectionSnapshots=await getDocs(getStudentsSubCollection(classDoc.id));
         studentSubCollectionSnapshots.forEach(async (studentDoc)=>{await deleteDoc(studentDoc.ref)})
       }
     )
-  };
-  const deleteOtherTerms = () => {
-    const batch2 = writeBatch(db);
-    const batch3 = writeBatch(db);
-    const firstTermDates = collection(db, Constants.TERMS[0]);
-    const secondTermDates = collection(db, Constants.TERMS[1]);
-    getDocs(firstTermDates)
-      .then((dateDocuments) => {
-        dateDocuments.forEach((dateDocument) => {
-          if (dateDocument.exists()) {
-            batch2.delete(dateDocument.ref);
-          }
-        });
-      })
-      .then(async () => { 
-        await batch2.commit();
-        getDocs(secondTermDates)
-          .then((dateDocuments) => {
-            dateDocuments.forEach((dateDocument) => {
-              if (dateDocument.exists()) {
-                batch3.delete(dateDocument.ref);
-              }
-            });
-          })
-          .then(async () => {
-            await batch3.commit();
-          });
-      });
   };
   const onChangeClassCodeClickClick = () => {
     console.log("onChangeClassCodeClickClick clicked");
