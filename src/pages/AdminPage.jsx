@@ -92,22 +92,24 @@ const AdminPage = () => {
           deleteOtherTerms();
         })
         .then(() => {
-          batch.commit();
-          // deleteStudentSubCollection()
+          deleteStudentSubCollection();
         });
     }
   };
-  const deleteStudentSubCollection = async () => {
+  const deleteStudentSubCollection = () => {
     getDocs(studentDocs).then((documents) => {
-      documents.forEach((studentDoc) => {
+      documents.forEach(async (studentDoc) => {
         const emptyStudentArray = {};
-        emptyArray[Constants.STUDENT_NAMES_ARRAY_FIELD_NAME] = deleteField();
-        updateDoc(studentDoc.ref, emptyStudentArray);
+        emptyStudentArray[Constants.STUDENT_NAMES_ARRAY_FIELD_NAME] =
+          deleteField();
+        await updateDoc(studentDoc.ref, emptyStudentArray);
         getDocs(
-          db,
-          Constants.CLASSES_COLLECTION_PATH,
-          studentDoc.id,
-          Constants.STUDENTS_COLLECTION_PATH
+          collection(
+            db,
+            Constants.CLASSES_COLLECTION_PATH,
+            studentDoc.id,
+            Constants.STUDENTS_COLLECTION_PATH
+          )
         ).then((snapshots) => {
           snapshots.forEach((snapshot) => {
             deleteDoc(snapshot.ref);
@@ -116,9 +118,9 @@ const AdminPage = () => {
       });
     });
   };
-  const deleteOtherTerms = async () => {
-    const batch2=writeBatch(db);
-    const batch3=writeBatch(db);
+  const deleteOtherTerms = () => {
+    const batch2 = writeBatch(db);
+    const batch3 = writeBatch(db);
     const firstTermDates = collection(db, Constants.TERMS[0]);
     const secondTermDates = collection(db, Constants.TERMS[1]);
     getDocs(firstTermDates)
@@ -130,14 +132,18 @@ const AdminPage = () => {
         });
       })
       .then(async () => {
-        await batch2.commit()
-        getDocs(secondTermDates).then((dateDocuments) => {
-          dateDocuments.forEach((dateDocument) => {
-            if (dateDocument.exists()) {
-              batch3.delete(dateDocument.ref);
-            }
+        await batch2.commit();
+        getDocs(secondTermDates)
+          .then((dateDocuments) => {
+            dateDocuments.forEach((dateDocument) => {
+              if (dateDocument.exists()) {
+                batch3.delete(dateDocument.ref);
+              }
+            });
+          })
+          .then(async () => {
+            await batch3.commit();
           });
-        });
       });
   };
   const onChangeClassCodeClickClick = () => {
