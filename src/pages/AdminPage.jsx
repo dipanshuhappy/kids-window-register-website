@@ -24,7 +24,6 @@ import {
   getStudentsSubCollection,
   db,
 } from "../Firebase";
-import { async } from "@firebase/util";
 import InputField from "../components/InputField";
 import ChangePassCodeModal from "../components/ChangePassCodeModal";
 
@@ -33,6 +32,7 @@ const AdminPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nextTermToBe, setNextTermToBe] = useState("");
+  const [showChangePassCodeModal,setChangePassCodeShowModal]=useState(false);
   const getNextTerm = () => {
     console.log("Store +>", Store.term);
     const index_of_current_term = Constants.TERMS.indexOf(Store.term);
@@ -103,7 +103,7 @@ const AdminPage = () => {
     });
   };
   const onChangeClassCodeClickClick = () => {
-    console.log("onChangeClassCodeClickClick clicked");
+    setChangePassCodeShowModal(true)
   };
   return (
     <div className="h-screen w-full">
@@ -159,7 +159,7 @@ const AdminPage = () => {
             name="Change class code"
             onClick={onChangeClassCodeClickClick}
           />
-          <ChangePassCodeModal />
+          <ChangePassCodeModal setShowModal={setChangePassCodeShowModal} showModal={showChangePassCodeModal} />
         </>
       )}
     </div>

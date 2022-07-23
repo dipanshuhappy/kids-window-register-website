@@ -70,7 +70,7 @@ const HomePage = ({ toggleLoggedInBar ,history}) => {
       className="centerHorizontal mb-12"
       />
       <LoginModal
-        className="centerHorizontal flex mt-2"
+        className="centerHorizontal  mt-2"
         value={passCode}
         valueChangedHandler={changePassCode}
         onSubmit={handleOnSubmitPassCode}
