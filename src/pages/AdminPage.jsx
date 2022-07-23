@@ -44,21 +44,15 @@ const AdminPage = () => {
     await setTerm()
     setNextTermToBe(getNextTerm())
     setAdmin(user.uid)
-  
   };
   async function setTerm() {
     const adminSnapShot = await getDoc(adminDoc);
     Store.term = adminSnapShot.data().term;
   }
   const onChangeTermClick = async () => {
-    const newAdminDoc = doc(
-      db,
-      Constants.ADMIN_COLLECTION_PATH,
-      Constants.TERM_INFO_DOCUMENT_NAME
-    );
     const data = { term: nextTermToBe };
     console.log("user::>", admin);
-    setDoc(adminDoc, data, { merge: true });
+    await setDoc(adminDoc, data, { merge: true });
   };
   const onChangeAcademicTermClick = async () => {
     if (Store.term.startsWith("first") || Store.term.startsWith("second")) {
