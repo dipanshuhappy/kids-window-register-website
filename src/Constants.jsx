@@ -7,6 +7,7 @@ const Constants= {
     DATES_COLLECTION_PATH:"dates",
     STUDENTS_COLLECTION_PATH:"students",
     ADMIN_COLLECTION_PATH:"admin",
-    TERM_INFO_DOCUMENT_NAME:"term"
+    TERM_INFO_DOCUMENT_NAME:"term",
+    TERMS:["first_term","second_term","thrid_term"]
 }
 export default Constants
