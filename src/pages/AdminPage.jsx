@@ -17,6 +17,7 @@ import {
 import Constants from "../Constants";
 import Store from "../Store";
 import { auth ,adminDoc,classesCollection} from "../Firebase";
+import { async } from "@firebase/util";
 
 const AdminPage = () => {
   const [admin, setAdmin] = useState("");
@@ -31,21 +32,20 @@ const AdminPage = () => {
     }
     return Constants.TERMS[index_of_current_term + 1];
   };
-  const onSignInClick = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        setTerm().then(() => {
-          console.log(Store.term);
-          setNextTermToBe(getNextTerm);
-          setAdmin(user.uid);
-        });
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        alert("Can't sign in , errorCode ", errorCode);
-      });
+  const onSignInClick = async () => {
+    let user;
+    try{
+     const userCreds  = await signInWithEmailAndPassword(auth,email,password);
+     user=userCreds.user;
+    }
+    catch (error) {
+      const errorCode = error.code;
+      alert("Can't sign in , errorCode ", errorCode);
+    }
+    await setTerm()
+    setNextTermToBe(getNextTerm())
+    setAdmin(user.uid)
+  
   };
   async function setTerm() {
     const adminSnapShot = await getDoc(adminDoc);
