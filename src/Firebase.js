@@ -1,6 +1,7 @@
 import { getAuth } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import Constants from "./Constants";
+import { getFirestore } from "firebase/firestore";
 const config = {
   apiKey: import.meta.env.SNOWPACK_PUBLIC_FIREBASE_API_KEY,
   authDomain: import.meta.env.SNOWPACK_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -17,4 +18,7 @@ export const adminDoc = doc(
   Constants.ADMIN_COLLECTION_PATH,
   Constants.TERM_INFO_DOCUMENT_NAME
 );
-export const classesCollection= collection(db, Constants.CLASSES_COLLECTION_PATH);
+export const classesCollection = collection(
+  db,
+  Constants.CLASSES_COLLECTION_PATH
+);

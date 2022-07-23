@@ -17,7 +17,6 @@ import {
 import Constants from "../Constants";
 import Store from "../Store";
 import { auth ,adminDoc,classesCollection} from "../Firebase";
-import { async } from "@firebase/util";
 
 const AdminPage = () => {
   const [admin, setAdmin] = useState("");
