@@ -16,7 +16,13 @@ import {
 } from "firebase/firestore";
 import Constants from "../Constants";
 import Store from "../Store";
-import { auth, adminDoc, classesCollection,getTermCollection} from "../Firebase";
+import {
+  auth,
+  adminDoc,
+  classesCollection,
+  getTermCollection,
+  getStudentsSubCollection,
+} from "../Firebase";
 import { async } from "@firebase/util";
 
 const AdminPage = () => {
@@ -58,47 +64,37 @@ const AdminPage = () => {
     if (!Store.term.startsWith(Constants.TERMS[Constants.TERMS.length - 1])) {
       alert("You need to be in Thrid term to start");
     } else {
-     await changeAcademicYear()
+      await changeAcademicYear();
     }
   };
-  const changeAcademicYear = async ()=>{
-    await updateDoc(adminDoc,{term:"first_term"})
-    Constants.TERMS.forEach(async (term)=>{await deleteTerm(getTermCollection(term))})
-    deleteStudentSubCollection();
-  }
-  const deleteTerm=async (termCollection)=>{
-    const termBatch=writeBatch(db);
+  const changeAcademicYear = async () => {
+    await updateDoc(adminDoc, { term: "first_term" });
+    Constants.TERMS.forEach(async (term) => {
+      await deleteTerm(getTermCollection(term));
+    });
+    await deleteStudentSubCollection();
+  };
+  const deleteTerm = async (termCollection) => {
+    const termBatch = writeBatch(db);
     const termDateSnapshots = await getDocs(termCollection);
-    termDateSnapshots.forEach(
-      termDateDoc=>{
-        if(termDateDoc.exists()){
-          termBatch.delete(termDateDoc.ref)
-        }
+    termDateSnapshots.forEach((termDateDoc) => {
+      if (termDateDoc.exists()) {
+        termBatch.delete(termDateDoc.ref);
+      }
+    });
+    await termBatch.commit();
+  };
+  const deleteStudentSubCollection = async () => {
+    const classesDocSnapshots=await getDocs(classesCollection);
+    classesDocSnapshots.forEach(
+      classDoc=>{
+        const emptyStudentArray = {};
+        emptyStudentArray[Constants.STUDENT_NAMES_ARRAY_FIELD_NAME]=deleteField();
+        await updateDoc(classDoc,emptyStudentArray);
+        const studentSubCollectionSnapshots=await getDocs(getStudentsSubCollection(classDoc.id));
+        studentSubCollectionSnapshots.forEach(async (studentDoc)=>{await deleteDoc(studentDoc.ref)})
       }
     )
-    await termBatch.commit()
-  }
-  const deleteStudentSubCollection = () => {
-    getDocs(classesCollection).then((documents) => {
-      documents.forEach(async (studentDoc) => {
-        const emptyStudentArray = {};
-        emptyStudentArray[Constants.STUDENT_NAMES_ARRAY_FIELD_NAME] =
-          deleteField();
-        await updateDoc(studentDoc.ref, emptyStudentArray);
-        getDocs(
-          collection(
-            db,
-            Constants.CLASSES_COLLECTION_PATH,
-            studentDoc.id,
-            Constants.STUDENTS_COLLECTION_PATH
-          )
-        ).then((snapshots) => {
-          snapshots.forEach((snapshot) => {
-            deleteDoc(snapshot.ref);
-          });
-        });
-      });
-    });
   };
   const deleteOtherTerms = () => {
     const batch2 = writeBatch(db);
@@ -113,7 +109,7 @@ const AdminPage = () => {
           }
         });
       })
-      .then(async () => {
+      .then(async () => { 
         await batch2.commit();
         getDocs(secondTermDates)
           .then((dateDocuments) => {

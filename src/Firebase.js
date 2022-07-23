@@ -23,3 +23,4 @@ export const classesCollection = collection(
   Constants.CLASSES_COLLECTION_PATH
 );
 export const getTermCollection=(term)=>collection(db,term)
+export const getStudentsSubCollection=(classId)=>collection(db,Constants.CLASSES_COLLECTION_PATH,classId,Constants.STUDENTS_COLLECTION_PATH)
