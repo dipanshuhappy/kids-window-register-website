@@ -16,16 +16,11 @@ const App = () => {
     toggleLoggedIn(loggedInValue);
     setClassId(newClassId);
   };
-  // useEffect(()=>{
-  //     if(!loggedIn){
-
-  //     }
-  // },[loggedIn])
   return (
     <div className="colorPrimary">
       {showToolbar && <Toolbar classId={classId} />}
       <Switch>
-        <Route exact path="/admin" render={()=><AdminPage/>} />
+        <Route exact path="/admin" render={()=><AdminPage/>}/>
         {loggedIn && (
           <React.Fragment>
             <Route
