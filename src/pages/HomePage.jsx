@@ -8,40 +8,24 @@ import { adminDoc, classCodesDoc ,validateLogin} from "../Firebase";
 
 const HomePage = ({ toggleLoggedInBar ,history}) => {
   const [passCode, changePassCode] = React.useState("");
-  const [classId, setClassId] = React.useState("");
-  const db = getFirestore();
   useEffect(()=>{
     history.push("/")
-  },[])
+  })
   const handleOnSubmitPassCode = async () => {
     const classCodeDoc = await getDoc(classCodesDoc);
     if (validateLogin(classCodeDoc,passCode)) {
       const newClassId = classCodeDoc.data()[passCode];
-      setClassId(newClassId);
-      console.log("passcode class id", classCodeDoc.data()[passCode]);
-      console.log("classId :>> ", classId);
-      console.log("submitted");
       toggleLoggedInBar(true, newClassId);
       Store.classId = newClassId;
-      setTerm().then(() => {
-        console.log("Store :>> ", Store.classId);
-        history.push("/students");
-      });
+      await  setTerm();
+      history.push("/students");
     } else {
-      alert("Wrong class code");
-    }
+      alert("Wrong Class code");
+    } 
   };
   async function setTerm() {
     const adminSnapShot = await getDoc(adminDoc);
     Store.term = adminSnapShot.data().term;
-  }
-  function getClassCodeRef() {
-    const docRef = doc(
-      db,
-      Constants.PASSCODE_COLLECTION_PATH,
-      Constants.CLASS_CODE_DOCUMENT_NAME
-    );
-    return docRef;
   }
   return (
     <div className="homePage colorPrimary">
