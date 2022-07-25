@@ -3,9 +3,11 @@ import AccentButton from "../components/AccentButton";
 import ActionModal from "../components/ActionModal";
 import AddButton from "../components/AddButton";
 import ListView from "../components/ListView";
-import { getFirestore, setDoc, doc, collection } from "firebase/firestore";
-import Constants from "../Constants";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
 import Store from "../Store";
+import { useAlert } from "react-alert";
+import { getClassDoc, getStudentsSubCollection } from "../Firebase";
+import Spinner from "../components/Spinner";
 const AddStudentPage = ({ history }) => {
   const [studentName, changeStudentName] = React.useState("");
   const [studentNames, changeStudentNames] = React.useState([]);
@@ -13,7 +15,9 @@ const AddStudentPage = ({ history }) => {
   const [title, setTitle] = React.useState("");
   const [body, setBody] = React.useState("");
   const [selectedName, changeSelectedName] = React.useState("");
+  const [showSpinner,setShowSpinner]=React.useState(false);
   const db = getFirestore();
+  const alert = useAlert();
   const attachLatestRoleNumber = () => {
     let rollNumber = 1;
     const newArr = studentNames.map((name) => {
@@ -22,18 +26,21 @@ const AddStudentPage = ({ history }) => {
     return newArr;
   };
   const redirectToStudents = () => {
+    setShowSpinner(false)
     history.push("/students");
   };
   const onAddButtonClicked = () => {
+      if(studentName.trim().length===0){
+        alert.error("Student name is empty")  
+    }
+    else{
     const newStudentNames = [...studentNames];
     newStudentNames.push(studentName);
     changeStudentNames(newStudentNames);
     changeStudentName("");
+    }
   };
   const onItemClicked = ({ target }) => {
-    console.log("onItemClicked");
-    console.log(target);
-    console.log("target.id :>> ", target.id);
     changeSelectedName(target.id);
     console.log(selectedName);
     setTitle(`Remove ${target.id} from List`);
@@ -41,20 +48,19 @@ const AddStudentPage = ({ history }) => {
     setShowModal(true);
   };
   const onClickSaveStudentNames = async () => {
-    addNamesToClass().then(() => {
-      makeStudentsSubCollection().then(redirectToStudents());
-    });
+    setShowSpinner(true);
+    await addNamesToClass();
+    await  makeStudentsSubCollection();
+    redirectToStudents()
   };
   const addNamesToClass = async () => {
     const dataToSend = {
       names: attachLatestRoleNumber(),
     };
-
-    const promise = await setDoc(
-      doc(db, `${Constants.CLASSES_COLLECTION_PATH}/${Store.classId}`),
+    await setDoc(
+      getClassDoc(Store.classId),
       dataToSend
     );
-    return promise;
   };
   const makeStudentsSubCollection = async () => {
     const dataToBeSent = {};
@@ -62,12 +68,8 @@ const AddStudentPage = ({ history }) => {
       dates_present: [],
       dates_absent: [],
     };
-    const studentsCollectionRef = collection(
-      db,
-      `${Constants.CLASSES_COLLECTION_PATH}/${Store.classId}/${Constants.STUDENTS_COLLECTION_PATH}`
-    );
-    attachLatestRoleNumber().forEach(async (id) => {
-      await setDoc(doc(db, studentsCollectionRef.path, id), dataToBeSent);
+    attachLatestRoleNumber().forEach(async (name) => {
+      await setDoc(doc(db, getStudentsSubCollection(Store.classId).path, name), dataToBeSent);
     });
   };
 
@@ -77,9 +79,10 @@ const AddStudentPage = ({ history }) => {
     );
     console.log("studentNames :>> ", studentNames);
     setShowModal(false);
+    alert.success(`Removed ${selectedName} From List`)
   };
   return (
-    <div className="h-screen w-full">
+    <div className="h-full w-full">
       <div>
         <div className="mb-3 pt-0 flex justify-center">
           <input
@@ -98,11 +101,13 @@ const AddStudentPage = ({ history }) => {
             onClick={onAddButtonClicked}
           />
         </div>
+        <Spinner enabled={showSpinner}/>
         <AccentButton
           name="Save Student name"
           onClick={onClickSaveStudentNames}
           disabled={studentNames.length === 0 ? true : false}
         />
+        <p className="text-center font-bold text-lg m-4">Click on the Student to remove it from the list </p>
         <ListView values={studentNames} onItemClicked={onItemClicked} />
         {showModal && (
           <ActionModal

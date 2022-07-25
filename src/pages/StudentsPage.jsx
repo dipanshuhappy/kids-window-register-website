@@ -31,24 +31,25 @@ const StudentsPages = ({ history }) => {
   const classDocRef = doc(db, Constants.CLASSES_COLLECTION_PATH, Store.classId);
   const getStudentNames = async () => {
     const snapShot = await getDoc(classDocRef);
-    if(snapShot.exists()){
-    const classNames = snapShot.data().names;
-    console.log(classNames);
-    console.log("this is running student name")
-    changeStudentNames(classNames);
-    }
-    else{
-      console.log("Does not exist students")
+    if (
+      snapShot.exists() &&
+      snapShot.data().names !== undefined &&
+      snapShot.data().names?.length
+    ) {
+      const classNames = snapShot.data().names;
+      console.log(classNames);
+      console.log("this is running student name");
+      changeStudentNames(classNames);
+    } else {
+      console.log("Does not exist students");
+      redirectToAddStudents();
     }
   };
   useEffect(async () => {
     (async () => {
       await getStudentNames();
     })();
-  });
-  useEffect(() => {
-    redirectToAddStudents();
-  }, [studentNames]);
+  }, []);
   useEffect(() => {
     if (!showActionModal) {
       setTitle("");
@@ -56,10 +57,8 @@ const StudentsPages = ({ history }) => {
     }
   }, [showActionModal]);
   const redirectToAddStudents = () => {
-    if (studentNames) {
-      console.log("lkdjfslj");
-      history.push("/add_student");
-    }
+    console.log("lkdjfslj");
+    history.push("/add_student");
   };
   const makeAlert = (text) => {
     setAlertText(text);
@@ -209,7 +208,9 @@ const StudentsPages = ({ history }) => {
       <span>
         <AddButton onClick={onAddButtonClick} />
       </span>
-      <h3 className="text-center font-bold">Long press on a student name to delete it</h3>
+      <h3 className="text-center font-bold">
+        Long press on a student name to delete it
+      </h3>
       {studentNames && (
         <ListView
           values={studentNames}
