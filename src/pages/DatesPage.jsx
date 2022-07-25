@@ -15,18 +15,21 @@ import Store from "../Store";
 import Constants from "../Constants";
 import { format } from "date-fns";
 import Alert from "../components/Alert";
+import { getClassDoc, getDateDoc, getStudentHistoryDoc } from "../Firebase";
+import Spinner from "../components/Spinner";
+import { useAlert } from "react-alert";
+import { async } from "@firebase/util";
 
 const DatesPage = () => {
   const defaultDate = format(new Date(), "dd-MM-yyyy");
   const [dateShow, toggleDateShow] = React.useState(true);
   const [selectedDate, setSelectedDate] = React.useState(defaultDate);
+  const [showSpinner,setShowSpinner]=React.useState(false);
+  const alert = useAlert()
   const [studentsAttendance, changeStudentsAttendance] = React.useState(
     new Map()
   );
-  const [showAlert, setShowAlert] = React.useState("");
-  const [alertText, setAlertText] = React.useState("");
-  const db = getFirestore();
-  const classDocRef = doc(db, Constants.CLASSES_COLLECTION_PATH, Store.classId);
+  const classDocRef = getClassDoc(Store.classId)
   const makeOrderedStudentAttendance = (
     classNames,
     unOrderStudentAttendance
@@ -37,9 +40,14 @@ const DatesPage = () => {
     });
     changeStudentsAttendance(newStudentsAttendane);
   };
-  const makeAlert = (text) => {
-    setAlertText(text);
-    setShowAlert(true);
+  const makeAlert = (text,type="success") => {
+    setShowSpinner(false);
+    if(type==="success"){
+      alert.success(text)
+    }
+    else if (type==="error"){
+      alert.error(text)
+    }
   };
   const makeNewStudentAttendace = (classNames) => {
     const newStudentsAttendane = new Map();
@@ -49,7 +57,7 @@ const DatesPage = () => {
     changeStudentsAttendance(newStudentsAttendane);
   };
   const getStudentsAttendance = async () => {
-    const dateDocRef = doc(db, Store.term, selectedDate);
+    const dateDocRef = getDateDoc(Store.term,selectedDate)
     return getDoc(dateDocRef);
   };
   const getStudentAttendance = async () => {
@@ -69,14 +77,20 @@ const DatesPage = () => {
   useEffect(() => {
     getStudentAttendance();
   }, [selectedDate]);
-  const onSaveChangesAttendance = () => {
+  const onSaveChangesAttendance = async () => {
     console.log("save attendance");
-    sendSavedAttendance().then(
-      updateStudentSubCollection().then(makeAlert("Attendance changes saved"))
-    );
+    try {
+      setShowSpinner(true)
+      await sendSavedAttendance()
+      await updateStudentSubCollection();
+    makeAlert("Attendance changes saved")
+    } catch (error) {
+      makeAlert("Attendance changes not saved error occured ","error")
+    }
+  
   };
   const sendSavedAttendance = async () => {
-    const docRef = doc(db, `${Store.term}/${selectedDate}`);
+    const docRef = getDateDoc(Store.term,selectedDate)
     const dataTobeSent = {};
     dataTobeSent[Store.classId] = Object.fromEntries(studentsAttendance);
     return await setDoc(docRef, dataTobeSent);
@@ -85,10 +99,7 @@ const DatesPage = () => {
     const strPresent = `${Store.term}.dates_present`;
     const strAbsent = `${Store.term}.dates_absent`;
     Array.from(studentsAttendance.keys()).forEach(async (name) => {
-      const studentDocRef = doc(
-        db,
-        `${classDocRef.path}/${Constants.STUDENTS_COLLECTION_PATH}/${name}`
-      );
+      const studentDocRef =getStudentHistoryDoc(Store.classId,name);
       if (studentsAttendance.get(name)) {
         await updateDoc(studentDocRef, {
           [strAbsent]: arrayRemove(selectedDate),
@@ -113,11 +124,6 @@ const DatesPage = () => {
         toggleDateShow={toggleDateShow}
         setSeletedDate={setSelectedDate}
       />
-      <Alert
-        showAlert={showAlert}
-        setShowAlert={setShowAlert}
-        text={alertText}
-      />
       {!dateShow && (
         <React.Fragment>
           <h3 className="text-center font-bold">{`Attendance for ${Store.classId} term ${Store.term} date ${selectedDate}`}</h3>
@@ -125,6 +131,7 @@ const DatesPage = () => {
             studentsAttendance={studentsAttendance}
             changeStudentsAttendance={changeStudentsAttendance}
           />
+          <Spinner enabled={showSpinner}/>
           <AccentButton
             name="Save changes to attendance"
             onClick={onSaveChangesAttendance}
