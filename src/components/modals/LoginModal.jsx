@@ -1,6 +1,6 @@
 import React from "react";
-import PassCodeInput from "./PassCodeInput";
-import ShowPasswordIcon from "./ShowPassWordIcon";
+import PassCodeInput from "../PassCodeInput";
+import ShowPasswordIcon from "../ShowPassWordIcon";
 import Modal from "./Modal";
 const LoginModal = ({ className, value, valueChangedHandler, onSubmit }) => {
   const [showModal, setShowModal] = React.useState(false);

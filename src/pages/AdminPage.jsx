@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import AccentButton from "./../components/AccentButton";
+import AccentButton from "../components/buttons/AccentButton";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import {
   getFirestore,
@@ -25,9 +25,9 @@ import {
   db,
   classCodesDoc,
 } from "../Firebase";
-import InputField from "../components/InputField";
-import ChangePassCodeModal from "../components/ChangePassCodeModal";
-import AddClassModal  from "../components/AddClassModal";
+import InputField from "../components/inputs/InputField";
+import ChangePassCodeModal from "../components/modals/ChangePassCodeModal";
+import AddClassModal  from "../components/modals/AddClassModal";
 const AdminPage = () => {
   const [admin, setAdmin] = useState("");
   const [email, setEmail] = useState("");

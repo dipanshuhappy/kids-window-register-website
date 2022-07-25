@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import AccentButton from "../components/AccentButton";
+import AccentButton from "../components/buttons/AccentButton";
 import Attendance from "../components/Attendance";
 import Store from "../Store";
 import {

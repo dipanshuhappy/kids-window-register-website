@@ -1,5 +1,5 @@
 import React from "react";
-import LoginModal from "../components/LoginModal";
+import LoginModal from "../components/modals/LoginModal";
 import { getDoc } from "firebase/firestore";
 import Store from "../Store";
 import { adminDoc, classCodesDoc, validateLogin } from "../Firebase";

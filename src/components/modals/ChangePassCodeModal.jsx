@@ -1,10 +1,10 @@
 import React from "react";
-import DropDown from "./DropDown";
-import PassCodeInput from "./PassCodeInput";
-import ShowPasswordIcon from "./ShowPassWordIcon";
+import DropDown from "../inputs/DropDown";
+import PassCodeInput from "../PassCodeInput";
+import ShowPasswordIcon from "../ShowPassWordIcon";
 import Modal from "./Modal";
 import { deleteField, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { classCodesDoc, validateLogin } from "../Firebase";
+import { classCodesDoc, validateLogin } from "../../Firebase";
 function ChangePassCodeModal({showModal,setShowModal,classList}) {
   const [className, setClassName] = React.useState("No Class Selected");
   const [oldPassword, setPassword] = React.useState("");

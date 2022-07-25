@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Attendance from "../components/Attendance";
-import DatePicker from "./../components/DatePicker";
-import AccentButton from "./../components/AccentButton";
+import DatePicker from "../components/inputs/DatePicker";
+import AccentButton from "../components/buttons/AccentButton";
 import {
   getFirestore,
   setDoc,
@@ -12,9 +12,9 @@ import {
   arrayRemove,
 } from "firebase/firestore";
 import Store from "../Store";
-import Constants from "../Constants";
+
 import { format } from "date-fns";
-import Alert from "../components/Alert";
+
 import { getClassDoc, getDateDoc, getStudentHistoryDoc } from "../Firebase";
 import Spinner from "../components/Spinner";
 import { useAlert } from "react-alert";

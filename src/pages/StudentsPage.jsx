@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import AddButton from "../components/AddButton";
-import InfoModal from "../components/InfoModal";
-import ListView from "../components/ListView";
+import AddButton from "../components/buttons/AddButton";
+import InfoModal from "../components/modals/InfoModal";
+import ListView from "../components/attendance/ListView";
 import {
   getFirestore,
   setDoc,
@@ -13,8 +13,8 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import Store from "../Store";
-import ActionModal from "../components/ActionModal";
-import AddModal from "../components/AddModal";
+import ActionModal from "../components/modals/ActionModal";
+import AddModal from "../components/modals/AddStudentModal";
 import { getClassDoc, getStudentHistoryDoc } from "../Firebase";
 import { useAlert } from "react-alert";
 const StudentsPages = ({ history }) => {

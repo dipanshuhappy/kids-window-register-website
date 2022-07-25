@@ -1,11 +1,11 @@
 import { arrayUnion, setDoc, updateDoc } from "firebase/firestore";
 import React, { useState } from "react";
-import InputField from "../components/InputField";
-import Constants from "../Constants";
-import { classCodesDoc } from "../Firebase";
+import InputField from "../inputs/InputField";
+import Constants from "../../Constants";
+import { classCodesDoc } from "../../Firebase";
 import Modal from "./Modal";
-import PassCodeInput from "./PassCodeInput";
-import ShowPasswordIcon from "./ShowPassWordIcon";
+import PassCodeInput from "../PassCodeInput";
+import ShowPasswordIcon from "../ShowPassWordIcon";
 
 function AddClassModal({ showModal, setShowModal }) {
   const [newClassName, setNewClassName] = useState("");

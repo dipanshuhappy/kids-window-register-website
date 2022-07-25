@@ -1,8 +1,8 @@
 import React from "react";
-import AccentButton from "../components/AccentButton";
-import ActionModal from "../components/ActionModal";
-import AddButton from "../components/AddButton";
-import ListView from "../components/ListView";
+import AccentButton from "../components/buttons/AccentButton";
+import ActionModal from "../components/modals/ActionModal";
+import AddButton from "../components/buttons/AddButton";
+import ListView from "../components/attendance/ListView";
 import { getFirestore, setDoc, doc } from "firebase/firestore";
 import Store from "../Store";
 import { useAlert } from "react-alert";
