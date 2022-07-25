@@ -12,23 +12,21 @@ import {
   arrayRemove,
   deleteDoc,
 } from "firebase/firestore";
-import Constants from "../Constants";
 import Store from "../Store";
 import ActionModal from "../components/ActionModal";
 import AddModal from "../components/AddModal";
-import Alert from "../components/Alert";
+import { getClassDoc, getStudentHistoryDoc } from "../Firebase";
+import { useAlert } from "react-alert";
 const StudentsPages = ({ history }) => {
   const [studentNames, changeStudentNames] = React.useState([]);
   const [showModal, setShowModal] = React.useState(false);
   const [showActionModal, setShowActionModal] = React.useState(false);
   const [showAddModal, setShowAddModal] = React.useState(false);
+  const alert = useAlert();
   const [title, setTitle] = React.useState("");
   const [body, setBody] = React.useState("");
   const [selectedName, setSelectedName] = React.useState("");
-  const [showAlert, setShowAlert] = React.useState("");
-  const [alertText, setAlertText] = React.useState("");
-  const db = getFirestore();
-  const classDocRef = doc(db, Constants.CLASSES_COLLECTION_PATH, Store.classId);
+  const classDocRef = getClassDoc(Store.classId);
   const getStudentNames = async () => {
     const snapShot = await getDoc(classDocRef);
     if (
@@ -61,15 +59,11 @@ const StudentsPages = ({ history }) => {
     history.push("/add_student");
   };
   const makeAlert = (text) => {
-    setAlertText(text);
-    setShowAlert(true);
+    alert.success(text)
   };
   const getStudentAttendanceHistory = async (name) => {
-    const studentRef = doc(
-      db,
-      `${classDocRef.path}/${Constants.STUDENTS_COLLECTION_PATH}/${name}`
-    );
-    return getDoc(studentRef);
+    const studentRef = getStudentHistoryDoc(Store.classId,name)
+    return await getDoc(studentRef);
   };
   const makeTitle = (name) => {
     setTitle(`Student attendance history of ${name}`);
@@ -118,10 +112,7 @@ const StudentsPages = ({ history }) => {
   };
   const deletStudentSubCollection = async () => {
     console.log("selectedName :>> ", selectedName);
-    const studentDoc = doc(
-      db,
-      `${classDocRef.path}/${Constants.STUDENTS_COLLECTION_PATH}/${selectedName}`
-    );
+    const studentDoc = getStudentHistoryDoc(Store.classId,selectedName)
     await deleteDoc(studentDoc);
   };
   const onAddButtonClick = () => {
@@ -139,10 +130,7 @@ const StudentsPages = ({ history }) => {
       dates_present: [],
       dates_absent: [],
     };
-    const newStudentDocRef = doc(
-      db,
-      `${Constants.CLASSES_COLLECTION_PATH}/${Store.classId}/${Constants.STUDENTS_COLLECTION_PATH}/${name}`
-    );
+    const newStudentDocRef = getStudentHistoryDoc(Store.classId,name)
     await setDoc(newStudentDocRef, dataToBeSent);
   };
   const addStudent = (name) => {
@@ -175,11 +163,6 @@ const StudentsPages = ({ history }) => {
 
   return (
     <div className="studentsPage colorPrimary">
-      <Alert
-        showAlert={showAlert}
-        setShowAlert={setShowAlert}
-        text={alertText}
-      />
       {showModal && (
         <InfoModal
           title={title}

@@ -40,4 +40,5 @@ export function validateLogin(snapShot,passCode) {
 }
 export const getTermCollection=(term)=>collection(db,term)
 export const getStudentsSubCollection=(classId)=>collection(db,Constants.CLASSES_COLLECTION_PATH,classId,Constants.STUDENTS_COLLECTION_PATH)
-export const getClassDoc =(classId)=>doc(db, `${Constants.CLASSES_COLLECTION_PATH}/${classId}`)
+export const getClassDoc =(classId)=>doc(db, Constants.CLASSES_COLLECTION_PATH,classId)
+export const getStudentHistoryDoc =(classId,studentId)=>doc(db,Constants.CLASSES_COLLECTION_PATH,classId,Constants.STUDENTS_COLLECTION_PATH,studentId)
