@@ -8,6 +8,7 @@ const Constants= {
     STUDENTS_COLLECTION_PATH:"students",
     ADMIN_COLLECTION_PATH:"admin",
     TERM_INFO_DOCUMENT_NAME:"term",
+    ACADEMIC_YEAR_START_DATE_FIELD:"academic_year_start_date",
     TERMS:["first_term","second_term","thrid_term"]
 }
 export default Constants

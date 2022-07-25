@@ -28,7 +28,7 @@ export const classCodesDoc=doc(
   Constants.CLASS_CODE_DOCUMENT_NAME
 )
 export function validateLogin(snapShot,passCode) {
-  if (snapShot.exists) {
+  if (snapShot.exists()) {
     if (snapShot.data()[passCode]) {
       return true;
     } else {
@@ -36,6 +36,18 @@ export function validateLogin(snapShot,passCode) {
     }
   } else {
     return false;
+  }
+}
+export function validateNewClass(snapShot,passCode,className){
+  if(snapShot.exists()){
+    const classList=snapShot.data()[Constants.CLASS_LIST_FIELD_NAME];
+    if(classList.includes(className)){
+      return false
+    }
+    if(snapShot.data()[passCode]!=undefined){
+      return false
+    }
+    return true;
   }
 }
 export const getTermCollection=(term)=>collection(db,term)

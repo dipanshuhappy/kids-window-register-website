@@ -5,17 +5,24 @@ import Modal from "./Modal";
 import { deleteField, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { classCodesDoc, validateLogin } from "../../Firebase";
 import ShowPasswordIcon from "../icons/ShowPassWordIcon";
+import Spinner from "../Spinner";
+import { useAlert } from "react-alert";
 function ChangePassCodeModal({showModal,setShowModal,classList}) {
   const [className, setClassName] = React.useState("No Class Selected");
   const [oldPassword, setPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
+  const [showSpinner, setShowSpinner] = React.useState(false);
+  
   const onDropItemClick = (value) => setClassName(value);
   const onPassCodeValueChange = (value) => setPassword(value);
   const onPassNewCodeValueChange = (value)=> setNewPassword(value);
+  const alert = useAlert()
   const onSubmit =async ()=>{
     const classCodeDoc = await getDoc(classCodesDoc);
     if(validateLogin(classCodeDoc,oldPassword) && newPassword.length!=0 && classCodeDoc.data()[oldPassword]==className){
-     await updateDoc(
+     setShowSpinner(true) 
+    try {
+      await updateDoc(
         classCodesDoc,{
           [oldPassword]:deleteField()
         }
@@ -26,10 +33,15 @@ function ChangePassCodeModal({showModal,setShowModal,classList}) {
         classCodesDoc,
         newPasswordData,{merge:true}
       )
-      setShowModal(false)
+      alert.success(`${className} Passcode Changed`)
+    } catch (error) {
+      alert.error("Could not change passcode ,try again later");
+    }
+    setShowSpinner(false)
+    setShowModal(false)
     }
     else{
-      alert("Wrong passcode")
+      alert.error("Wrong passcode")
     }
   }
   return (
@@ -68,6 +80,7 @@ function ChangePassCodeModal({showModal,setShowModal,classList}) {
             icon={ShowPasswordIcon}
             iconAsButton
           />
+          <Spinner enabled={showSpinner}/>
         </div>
       </Modal>
     </>

@@ -13,6 +13,7 @@ import {
   writeBatch,
   deleteField,
   deleteDoc,
+  Timestamp,
 } from "firebase/firestore";
 import Constants from "../Constants";
 import Store from "../Store";
@@ -27,15 +28,21 @@ import {
 } from "../Firebase";
 import InputField from "../components/inputs/InputField";
 import ChangePassCodeModal from "../components/modals/ChangePassCodeModal";
-import AddClassModal  from "../components/modals/AddClassModal";
-const AdminPage = () => {
+import AddClassModal from "../components/modals/AddClassModal";
+import { useAlert } from "react-alert";
+import Spinner from "../components/Spinner";
+const AdminPage = ({history}) => {
   const [admin, setAdmin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nextTermToBe, setNextTermToBe] = useState("");
-  const [classList,setClassList]=useState([]);
-  const [showChangePassCodeModal,setChangePassCodeShowModal]=useState(false);
-  const [showAddClassModal,setAddClassShowModal]=useState(false);
+  const [classList, setClassList] = useState([]);
+  const [showChangePassCodeModal, setChangePassCodeShowModal] = useState(false);
+  const [showAddClassModal, setAddClassShowModal] = useState(false);
+  const [showSpinner, setShowSpinner] = React.useState(false);
+  const currentDateTimeStamp = Timestamp.fromDate(new Date());
+  const alert = useAlert();
+
   const getNextTerm = () => {
     console.log("Store +>", Store.term);
     const index_of_current_term = Constants.TERMS.indexOf(Store.term);
@@ -44,44 +51,73 @@ const AdminPage = () => {
     }
     return Constants.TERMS[index_of_current_term + 1];
   };
+  const gotoHome=()=>{history.push("/")}
   const onSignInClick = async () => {
     let user;
     try {
       const userCreds = await signInWithEmailAndPassword(auth, email, password);
       user = userCreds.user;
     } catch (error) {
-      const errorCode = error.code;
-      alert("Can't sign in , errorCode ", errorCode);
+      alert.error("Wrong Credentials");
     }
-    await setTerm();
-    await setClassListFromDatabase();
-    setNextTermToBe(getNextTerm());
-    setAdmin(user.uid);
+    setShowSpinner(true);
+    try {
+      await setTerm();
+      await setClassListFromDatabase();
+      setNextTermToBe(getNextTerm());
+      setAdmin(user.uid);
+      alert.success("Logged In");
+    } catch (error) {
+      alert.error("Could Not Sign In , try again later");
+    }
+    setShowSpinner(false);
   };
   async function setTerm() {
     const adminSnapShot = await getDoc(adminDoc);
     Store.term = adminSnapShot.data().term;
   }
-  const setClassListFromDatabase=async ()=>{
-    const newClassList= await (await getDoc(classCodesDoc)).data()[Constants.CLASS_LIST_FIELD_NAME]
-    setClassList(
-     newClassList
-    )
-  }
+  const setClassListFromDatabase = async () => {
+    const newClassList = await (await getDoc(classCodesDoc)).data()[
+      Constants.CLASS_LIST_FIELD_NAME
+    ];
+    setClassList(newClassList);
+  };
   const onChangeTermClick = async () => {
-    const data = { term: nextTermToBe };
-    console.log("user::>", admin);
-    await setDoc(adminDoc, data, { merge: true });
+    if (nextTermToBe === Constants.TERMS[0]) {
+      alert.error("Start a new academic session to set term to first term ");
+    } else {
+      setShowSpinner(true);
+      const data = { term: nextTermToBe };
+      try {
+        await setDoc(adminDoc, data, { merge: true });
+        await setTerm()
+        setNextTermToBe(getNextTerm())
+        alert.success(`Term Changed to ${nextTermToBe}`);
+      } catch (error) {
+        alert.error("Could Not Change Term ,try again later");
+      }
+      setShowSpinner(false);
+    }
   };
   const onChangeAcademicTermClick = async () => {
     if (!Store.term.startsWith(Constants.TERMS[Constants.TERMS.length - 1])) {
-      alert("You need to be in Thrid term to start");
+      alert.error("You need to be in Thrid term to start");
     } else {
-      await changeAcademicYear();
+      setShowSpinner(true);
+      try {
+        await changeAcademicYear();
+        alert.success("New Academic Year has Started at ");
+      } catch (error) {
+        alert.error("Could Not Change Academic  Year  ,try again later");
+      }
+      setShowSpinner(false);
     }
   };
   const changeAcademicYear = async () => {
-    await updateDoc(adminDoc, { term: "first_term" });
+    await updateDoc(adminDoc, {
+      term: "first_term",
+      [Constants.ACADEMIC_YEAR_START_DATE_FIELD]: currentDateTimeStamp,
+    });
     Constants.TERMS.forEach(async (term) => {
       await deleteTerm(getTermCollection(term));
     });
@@ -113,15 +149,15 @@ const AdminPage = () => {
     });
   };
   const onChangeClassCodeClick = () => {
-    setChangePassCodeShowModal(true)
+    setChangePassCodeShowModal(true);
   };
-  const onAddClassClick = ()=>{
+  const onAddClassClick = () => {
     setAddClassShowModal(true);
-  }
+  };
   return (
     <div className="h-screen w-full">
       <div className="w-full colorAccent">
-        <AccentButton name="Goto Home" />
+        <AccentButton onClick={gotoHome} name="Goto Home" />
       </div>
       {!admin ? (
         <div className="colorAccent  m-32 p-8 rounded-2xl drop-shadow-md">
@@ -144,6 +180,7 @@ const AdminPage = () => {
               value={password}
             />
             <p className="text-red text-xs italic">Enter a password.</p>
+            <Spinner enabled={showSpinner} />
             <div className="flex items-center justify-between">
               <button
                 className="mt-5 bg-gray-200 text-black hover:bg-blue-dark font-bold py-2 px-4 rounded"
@@ -177,8 +214,16 @@ const AdminPage = () => {
             name="Add Class"
             onClick={onAddClassClick}
           />
-          <ChangePassCodeModal classList={classList} setShowModal={setChangePassCodeShowModal} showModal={showChangePassCodeModal} />
-          <AddClassModal setShowModal={setAddClassShowModal} showModal={showAddClassModal} />
+          <Spinner enabled={showSpinner} />
+          <ChangePassCodeModal
+            classList={classList}
+            setShowModal={setChangePassCodeShowModal}
+            showModal={showChangePassCodeModal}
+          />
+          <AddClassModal
+            setShowModal={setAddClassShowModal}
+            showModal={showAddClassModal}
+          />
         </>
       )}
     </div>

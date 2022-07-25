@@ -20,7 +20,7 @@ const App = () => {
     <div className="colorPrimary">
       {showToolbar && <Toolbar classId={classId} />}
       <Switch>
-        <Route exact path="/admin" render={()=><AdminPage/>}/>
+        <Route exact path="/admin" render={({history})=><AdminPage history={history}/>}/>
         {loggedIn && (
           <React.Fragment>
             <Route

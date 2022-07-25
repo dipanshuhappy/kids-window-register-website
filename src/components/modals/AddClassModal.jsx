@@ -1,30 +1,45 @@
-import { arrayUnion, setDoc, updateDoc } from "firebase/firestore";
+import { arrayUnion, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import InputField from "../inputs/InputField";
 import Constants from "../../Constants";
-import { classCodesDoc } from "../../Firebase";
+import { classCodesDoc, validateNewClass } from "../../Firebase";
 import Modal from "./Modal";
 import PassCodeInput from "../inputs/PassCodeInput";
 import ShowPasswordIcon from "../icons/ShowPassWordIcon";
-function AddClassModal({ showModal, setShowModal }) {
+import { useAlert } from "react-alert";
+import Spinner from "../Spinner";
+function AddClassModal({ showModal, setShowModal,classList }) {
   const [newClassName, setNewClassName] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [showSpinner, setShowSpinner] = React.useState(false);
+  const alert = useAlert();
   const onPassNewCodeValueChange = (value) => setNewPassword(value);
   const onEnter = async () => {
+    const classCodesSnapshot=await getDoc(classCodesDoc);
     if (newClassName.length != 0 && newPassword.length != 0) {
-      await setDoc(
-        classCodesDoc,
-        { [newPassword]: newClassName.replaceAll(" ", "_") },
-
-        {
-          merge: true,
-        }
-      );
-      await updateDoc(classCodesDoc, {
-        [Constants.CLASS_LIST_FIELD_NAME]: arrayUnion(newClassName),
-      });
+      setShowSpinner(true)
+      if(validateNewClass(classCodesSnapshot,newPassword,newClassName)){
+        await setDoc(
+          classCodesDoc,
+          { [newPassword]: newClassName.replaceAll(" ", "_") },
+  
+          {
+            merge: true,
+          }
+        );
+        await updateDoc(classCodesDoc, {
+          [Constants.CLASS_LIST_FIELD_NAME]: arrayUnion(newClassName),
+        });
+        alert.success(`${newClassName} has been added to the classes`)
+      }
+      else{
+        alert.error("Either Class Name or Pass Code already exists");
+      }
+      setShowSpinner(false)
+      setShowModal(false)
+      
     } else {
-      alert("Input field are empty");
+      alert.error("Input field are empty");
     }
   };
   return (
@@ -51,6 +66,7 @@ function AddClassModal({ showModal, setShowModal }) {
           icon={ShowPasswordIcon}
           iconAsButton
         />
+        <Spinner enabled={showSpinner}/>
       </div>
     </Modal>
   );
