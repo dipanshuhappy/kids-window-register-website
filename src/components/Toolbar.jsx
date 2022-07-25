@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import Store from "../Store";
 export default function Toolbar({classId}) {
   const [navbarOpen, setNavbarOpen] = React.useState(false);
+  const onLogout=()=>{
+    window.location.pathname="/"
+  }
   return (
     <>
       <nav className="relative flex flex-wrap items-center justify-between px-2 py-3  bg-500 mb-4 colorAccent">
@@ -61,14 +64,14 @@ export default function Toolbar({classId}) {
                 </Link>
               </li>
               <li className="nav-item">
-              <Link to="/">
+              <div onClick={()=>{onLogout()}} className="cursor-pointer" >
                 <p
                   className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
                   
                 >
                   <i className="fab fa-pinterest text-lg leading-lg text-white opacity-75"></i><span className="ml-2">Log Out</span>
                 </p>
-                </Link>
+                </div>
               </li>
             </ul>
           </div>
