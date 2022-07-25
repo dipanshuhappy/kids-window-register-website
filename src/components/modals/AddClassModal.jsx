@@ -4,9 +4,8 @@ import InputField from "../inputs/InputField";
 import Constants from "../../Constants";
 import { classCodesDoc } from "../../Firebase";
 import Modal from "./Modal";
-import PassCodeInput from "../PassCodeInput";
-import ShowPasswordIcon from "../ShowPassWordIcon";
-
+import PassCodeInput from "../inputs/PassCodeInput";
+import ShowPasswordIcon from "../icons/ShowPassWordIcon";
 function AddClassModal({ showModal, setShowModal }) {
   const [newClassName, setNewClassName] = useState("");
   const [newPassword, setNewPassword] = useState("");

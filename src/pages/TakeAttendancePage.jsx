@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import AccentButton from "../components/buttons/AccentButton";
-import Attendance from "../components/Attendance";
+import Attendance from "../components/attendance/Attendance";
 import Store from "../Store";
 import {
   setDoc,

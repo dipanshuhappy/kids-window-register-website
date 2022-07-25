@@ -1,5 +1,5 @@
 import React from "react";
-import ShowPasswordIcon from "./ShowPassWordIcon";
+import ShowPasswordIcon from "../icons/ShowPassWordIcon";
 const PassCodeInput = ({ value,maxLength, valueChangedHandler, className, hint }) => {
   const [visibility, toggleVisibility] = React.useState(false);
   return (

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import Attendance from "../components/Attendance";
+import Attendance from "../components/attendance/Attendance";
 import DatePicker from "../components/inputs/DatePicker";
 import AccentButton from "../components/buttons/AccentButton";
 import {
