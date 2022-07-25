@@ -61,12 +61,12 @@ export default function Toolbar({classId}) {
                 </Link>
               </li>
               <li className="nav-item">
-                <a href="https://dipanshuayo.github.io/Aboutset2k21/about.html" target="_blank">
+                <a href="/" target="_blank">
                 <p
                   className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
                   
                 >
-                  <i className="fab fa-pinterest text-lg leading-lg text-white opacity-75"></i><span className="ml-2">About set2k21</span>
+                  <i className="fab fa-pinterest text-lg leading-lg text-white opacity-75"></i><span className="ml-2">Log Out</span>
                 </p>
                 </a>
               </li>
